@@ -66,6 +66,15 @@ const _coreVersionManager = {
     return arr.pop()
   },
 
+  min () {
+    const list = Array.prototype.slice.call(arguments)
+    if (list.length === 1) {
+      return list[0]
+    }
+    const arr = this.sort(list)
+    return arr.shift()
+  },
+
   sort (arr) {
     arr.sort((a, b) => {
       return _transfomrVersion(a) - _transfomrVersion(b)
