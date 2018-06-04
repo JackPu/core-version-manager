@@ -1,6 +1,6 @@
 // 一个管理版本的 JS 库
-const versionReg = /\d+\.\d+\.\d+[-a-zA-Z]*/
-const maxVerionNo = 99
+const versionReg = /^\d+\.\d+\.\d+[-a-zA-Z]*$/
+const maxVerionNo = 100
 
 const _transfomrVersion = function (v) {
   if (!v) {
@@ -27,8 +27,10 @@ const _coreVersionManager = {
       if (maxVerionNo === (vArrs[1] + 1)) {
         vArrs[0] *= 1
         vArrs[0] += 1
+        vArrs[1] = vArrs[2] = 0
       } else {
-        vArrs[1] *= 1
+        vArrs[1] += 1
+        vArrs[2] = 0
       }
     } else {
       vArrs[2] += 1
@@ -36,8 +38,23 @@ const _coreVersionManager = {
     return vArrs.join('.')
   },
 
-  pre () {
-
+  pre (v) {
+    const vArrs = v.split('.')
+    vArrs[2] *= 1
+    if ((vArrs[2] - 1) < 0) {
+      vArrs[1] *= 1
+      if ((vArrs[1] - 1) < 0) {
+        vArrs[0] *= 1
+        vArrs[0] -= 1
+        vArrs[1] = vArrs[2] = (maxVerionNo - 1)
+      } else {
+        vArrs[1] -= 1
+        vArrs[2] = (maxVerionNo - 1)
+      }
+    } else {
+      vArrs[2] -= 1
+    }
+    return vArrs.join('.')
   },
 
   max () {
@@ -57,10 +74,13 @@ const _coreVersionManager = {
   },
 
   compareAB (a, b) {
-    if (_transfomrVersion(a) - _transfomrVersion(b) > 0) {
+    const result = _transfomrVersion(a) - _transfomrVersion(b)
+    if (result > 0) {
       return 1
-    } else {
+    } else if (result < 0) {
       return -1
+    } else {
+      return 0
     }
   },
 
