@@ -2,7 +2,7 @@
 
 <img src="https://circleci.com/gh/JackPu/core-version-manager.svg?style=shield">
 <img src="https://codecov.io/gh/JackPu/core-version-manager/graph/badge.svg" />
-![Node Version](https://img.shields.io/node/v/core-version-manager.svg "Node Version")
+<img src="https://img.shields.io/node/v/core-version-manager.svg" />
 
 
 A JavaScript Library To Manage Version String
