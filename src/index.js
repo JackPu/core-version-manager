@@ -1,16 +1,13 @@
 // 一个管理版本的 JS 库
-const versionReg = /^\d+\.\d+\.\d+[-a-zA-Z]*$/
-const maxVerionNo = 100
+const versionReg = /^\d+\.\d+\.\d+[-a-zA-Z.\d]*$/
+const LAST_VERSION_NO = 99
 
-const _transfomrVersion = function (v) {
-  if (!v) {
-    return 0
-  }
-  let total = 0
-  v.split('.').map((item, index) => {
-    total += item * Math.pow(10, (2 - index))
-  })
-  return total
+const _transfomrVersion = (v) => {
+  if (!v) return 0
+  
+  return v.split('.')
+    .map((value, index) => value * Math.pow(10, (2 - index) * 2))
+    .reduce((acc, value) => acc + value, 0)
 }
 
 const _coreVersionManager = {
@@ -20,82 +17,79 @@ const _coreVersionManager = {
   },
 
   next (v) {
-    const vArrs = v.split('.')
-    vArrs[2] *= 1
-    if (maxVerionNo === (vArrs[2] + 1)) {
-      vArrs[1] *= 1
-      if (maxVerionNo === (vArrs[1] + 1)) {
-        vArrs[0] *= 1
-        vArrs[0] += 1
-        vArrs[1] = vArrs[2] = 0
+    let [major, minor, patch] = v
+      .split('.')
+      .map(i => i * 1)
+    
+    if (patch === LAST_VERSION_NO) {
+      patch = 0
+      if (minor === LAST_VERSION_NO) {
+        minor = 0
+        major += 1
       } else {
-        vArrs[1] += 1
-        vArrs[2] = 0
+        minor += 1
       }
     } else {
-      vArrs[2] += 1
+      patch += 1
     }
-    return vArrs.join('.')
+    return [major, minor, patch].join('.')
   },
 
   pre (v) {
-    const vArrs = v.split('.')
-    vArrs[2] *= 1
-    if ((vArrs[2] - 1) < 0) {
-      vArrs[1] *= 1
-      if ((vArrs[1] - 1) < 0) {
-        vArrs[0] *= 1
-        vArrs[0] -= 1
-        vArrs[1] = vArrs[2] = (maxVerionNo - 1)
+    let [major, minor, patch] = v
+      .split('.')
+      .map(i => i * 1)
+    
+    if (patch === 0) {
+      if (minor === 0) {
+        major -= 1
+        minor = LAST_VERSION_NO
       } else {
-        vArrs[1] -= 1
-        vArrs[2] = (maxVerionNo - 1)
+        minor -= 1
       }
+      patch = LAST_VERSION_NO
     } else {
-      vArrs[2] -= 1
+      patch -= 1
     }
-    return vArrs.join('.')
+    return [major, minor, patch].join('.')
   },
 
-  max () {
-    const list = Array.prototype.slice.call(arguments)
-    if (list.length === 1) {
-      return list[0]
-    }
-    const arr = this.sort(list)
-    return arr.pop()
+  max (...list) {
+    if (!list.length) return 0
+
+    return this
+      .sort(list)
+      .pop()
   },
 
-  min () {
-    const list = Array.prototype.slice.call(arguments)
-    if (list.length === 1) {
-      return list[0]
-    }
-    const arr = this.sort(list)
-    return arr.shift()
+  min (...list) {
+    if (!list.length) return 0
+
+    return this
+      .sort(list)
+      .shift()
   },
 
   sort (arr) {
-    arr.sort((a, b) => {
-      return _transfomrVersion(a) - _transfomrVersion(b)
-    })
     return arr
+      .sort((a, b) => _transfomrVersion(a) - _transfomrVersion(b))
   },
 
   compareAB (a, b) {
-    const result = _transfomrVersion(a) - _transfomrVersion(b)
-    if (result > 0) {
+    const v1 = _transfomrVersion(a)
+    const v2 = _transfomrVersion(b)
+    if (v1 > v2) {
       return 1
-    } else if (result < 0) {
+    } else if (v1 < v2) {
       return -1
-    } else {
-      return 0
     }
+    return 0
   },
 
   _getVersionNumber (v) {
-    return v.replace(/[a-zA-Z-]+/g, '')
+    return v.replace(/-[a-zA-Z.\d]+$/, '')
   }
 }
 
 module.exports = _coreVersionManager
+
